@@ -8,11 +8,7 @@ namespace Shop
     {
         static void Main(string[] args)
         {
-
-            var optionsBuilder = new DbContextOptionsBuilder<ShopDb>();
-            optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=Shop;Integrated Security=True;");
-
-            using (var context = new ShopDb(optionsBuilder.Options))
+            using (var context = new ShopDb())
             {
                 var order = new Order()
                 {
