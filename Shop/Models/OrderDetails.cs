@@ -6,18 +6,20 @@ namespace Shop.Models
     public class OrderDetails
     {
         [Key]
-        public int OrderDetailsId { get; set; }
+        public int Id { get; set; }
 
-        public int OrderNumber { get; set; }
+        public int OrderId { get; set; }
 
-        [ForeignKey("OrderNumber")]
+        [ForeignKey("OrderId")]
         public Order? Order { get; set; }
 
-        public List<Product>? Products { get; set; }
+        public int ProductId { get; set; }
 
-        public OrderDetails()
-        {
-            Products = new List<Product>();
-        }
+        [ForeignKey("ProductId")]
+        public Product? Product { get; set; }
+
+        public decimal Price { get; set; }
+
+        public int Quantity { get; set; }
     }
 }
