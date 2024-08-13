@@ -12,8 +12,8 @@ using Shop.Data;
 namespace Shop.Migrations
 {
     [DbContext(typeof(ShopDb))]
-    [Migration("20240810141744_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20240812181825_ChangeModelMigration")]
+    partial class ChangeModelMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,60 +27,69 @@ namespace Shop.Migrations
 
             modelBuilder.Entity("Shop.Models.Order", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("OrderId");
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Shop.Models.OrderDetails", b =>
                 {
-                    b.Property<int>("OrderDetailsId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailsId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("OrderNumber")
+                    b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.HasKey("OrderDetailsId");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.HasIndex("OrderNumber");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("Shop.Models.Product", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OrderDetailsId")
+                    b.Property<int?>("OrderDetailsId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("PricePerOne")
+                    b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("ProductId");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("OrderDetailsId");
 
@@ -91,7 +100,7 @@ namespace Shop.Migrations
                 {
                     b.HasOne("Shop.Models.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderNumber")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -100,13 +109,9 @@ namespace Shop.Migrations
 
             modelBuilder.Entity("Shop.Models.Product", b =>
                 {
-                    b.HasOne("Shop.Models.OrderDetails", "OrderDetails")
+                    b.HasOne("Shop.Models.OrderDetails", null)
                         .WithMany("Products")
-                        .HasForeignKey("OrderDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OrderDetails");
+                        .HasForeignKey("OrderDetailsId");
                 });
 
             modelBuilder.Entity("Shop.Models.OrderDetails", b =>

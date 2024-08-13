@@ -13,13 +13,13 @@ namespace Shop.Models
         [ForeignKey("OrderId")]
         public Order? Order { get; set; }
 
-        public int ProductId { get; set; }
-
-        [ForeignKey("ProductId")]
-        public Product? Product { get; set; }
+        public virtual IList<Product> Products { get; set; }
 
         public decimal Price { get; set; }
 
-        public int Quantity { get; set; }
+        public OrderDetails()
+        {
+            Products = new List<Product>();
+        }
     }
 }

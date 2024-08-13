@@ -12,7 +12,7 @@ using Shop.Data;
 namespace Shop.Migrations
 {
     [DbContext(typeof(ShopDb))]
-    [Migration("20240811143745_UpdateModelMigration")]
+    [Migration("20240811182227_UpdateModelMigration")]
     partial class UpdateModelMigration
     {
         /// <inheritdoc />
@@ -58,17 +58,12 @@ namespace Shop.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetails");
                 });
@@ -88,7 +83,12 @@ namespace Shop.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("OrderDetailsId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderDetailsId");
 
                     b.ToTable("Products");
                 });
@@ -101,15 +101,19 @@ namespace Shop.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shop.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Order");
+                });
 
-                    b.Navigation("Product");
+            modelBuilder.Entity("Shop.Models.Product", b =>
+                {
+                    b.HasOne("Shop.Models.OrderDetails", null)
+                        .WithMany("Products")
+                        .HasForeignKey("OrderDetailsId");
+                });
+
+            modelBuilder.Entity("Shop.Models.OrderDetails", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }
