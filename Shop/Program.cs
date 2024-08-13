@@ -12,87 +12,45 @@ namespace Shop
         {
             using (var context = new ShopDb())
             {
-                //var products = new Product[]
-                //{
-                //    new Product()
-                //    {
-                //        Name = "Apple",
-                //        Description = "Just a green apple",
-                //        Price = 0.3m,
-                //        Quantity = 0
-                //    },
-                //    new Product()
-                //    {
-                //        Name = "Banana",
-                //        Description = "Yellow banana",
-                //        Price = 0.25m,
-                //        Quantity = 0
-                //    },
-                //    new Product()
-                //    {
-                //        Name = "Watermelon",
-                //        Description = "Juicy watermelon",
-                //        Price = 0.633m,
-                //        Quantity = 0
-                //    }
-                //};
-
-                //context.Products.AddRange(products);
-                //context.SaveChanges();
-
+                Console.WriteLine("If you want to quit, write 'exit'");
                 while (true)
                 {
-                    Console.WriteLine("Enter 'start' if u want to create an order");
-                    string action = Console.ReadLine().ToLowerInvariant();
+                    Console.WriteLine("Enter name of the product:");
+                    string productName = Console.ReadLine();
 
-                    switch (action)
+                    int quantity = 0;
+                    decimal price = 0.0m;
+                    try
                     {
-                        case "start":
-                            {
-                                var order = new Order();
-                                order.OrderDate = DateTime.Now;
-                                order.OrderNumber = new Random().Next(1, 1000000);
+                        Console.WriteLine("Enter quantity of the product:");
+                        quantity = int.Parse(Console.ReadLine());
 
-                                context.Orders.Add(order);
-                                context.SaveChanges();
-
-                                Console.WriteLine("Enter which products you would like to add");
-                                string[] productNames = Console.ReadLine().Split(' ');
-
-                                var orderDetails = new OrderDetails();
-                                orderDetails.Order = order;
-
-                                foreach (var productName in productNames)
-                                {
-                                    var product = context.Products.FirstOrDefault(p => p.Name == productName);
-
-                                    if (product is not null && !orderDetails.Products.Contains(product))
-                                    {
-                                        orderDetails.Products.Add(product);
-                                    }
-
-                                    product.Quantity++;
-                                }
-
-                                foreach (var product in orderDetails.Products)
-                                {
-                                    orderDetails.Price += product.Price * product.Quantity;
-                                }
-
-                                context.OrderDetails.Add(orderDetails);
-                                context.SaveChanges();
-                                break;
-                            }
-                        case "stop":
-                            {
-                                return;
-                            }
-                        default:
-                            {
-                                Console.WriteLine("Unknown command.");
-                                break;
-                            }
+                        Console.WriteLine("Enter price of the product:");
+                        price = decimal.Parse(Console.ReadLine());
                     }
+                    catch
+                    {
+                        break;
+                    }
+
+                    Console.WriteLine("Enter description of the product:");
+                    string description = Console.ReadLine();
+
+                    if (productName == "exit" || description == "exit")
+                    {
+                        break;
+                    }
+
+                    var product = new Product()
+                    {
+                        Name = productName,
+                        Quantity = quantity,
+                        Price = price,
+                        Description = description
+                    };
+
+                    context.Products.Add(product);
+                    context.SaveChanges();
                 }
             }
         }
