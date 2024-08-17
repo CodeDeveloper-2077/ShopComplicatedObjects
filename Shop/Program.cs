@@ -5,9 +5,11 @@ namespace Shop
 {
     internal class Program
     {
+        private static ShopDb context = new ShopDb();
+
         static void Main(string[] args)
         {
-            using (var context = new ShopDb())
+            using (context)
             {
                 int action = 0;
                 while (true)
@@ -23,151 +25,22 @@ namespace Shop
                     {
                         case 1:
                             {
-                                Console.WriteLine("Name|Description|Quantity|Price");
-                                foreach (var product in context.Products)
-                                {
-                                    Console.WriteLine($"{product.Name}|{product.Description}|{product.Quantity}|{product.Price}");
-                                }
-
+                                DisplayProducts();
                                 break;
                             }
                         case 2:
                             {
-                                Console.WriteLine("Enter name of the product:");
-                                string productName = Console.ReadLine();
-
-                                int quantity = 0;
-                                decimal price = 0.0m;
-                                try
-                                {
-                                    Console.WriteLine("Enter quantity of the product:");
-                                    quantity = int.Parse(Console.ReadLine());
-
-                                    Console.WriteLine("Enter price of the product:");
-                                    price = decimal.Parse(Console.ReadLine());
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine($"Error occurred: {ex.Message}");
-                                    break;
-                                }
-
-                                Console.WriteLine("Enter description of the product:");
-                                string description = Console.ReadLine();
-
-                                if (productName == "exit" || description == "exit")
-                                {
-                                    break;
-                                }
-
-                                var product = new Product()
-                                {
-                                    Name = productName,
-                                    Quantity = quantity,
-                                    Price = price,
-                                    Description = description
-                                };
-
-                                context.Products.Add(product);
+                                AddProduct();
                                 break;
                             }
                         case 3:
                             {
-                                Console.WriteLine("Enter name of the product which you would like to update");
-                                
-                                string productName = Console.ReadLine();
-                                var product = context.Products.FirstOrDefault(p => p.Name == productName);
-                                if (product is null)
-                                {
-                                    Console.WriteLine("Current product doesn't exist");
-                                    return;
-                                }
-
-                                int property = 0;
-                                while (true)
-                                {
-                                    Console.WriteLine("1.Name");
-                                    Console.WriteLine("2.Description");
-                                    Console.WriteLine("3.Quantity");
-                                    Console.WriteLine("4.Price");
-                                    Console.WriteLine("5.Exit");
-
-                                    property = int.Parse(Console.ReadLine());
-                                    switch (property)
-                                    {
-                                        case 1:
-                                            {
-                                                Console.WriteLine("Enter new name");
-                                                product.Name = Console.ReadLine();
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                Console.WriteLine("Enter new description");
-                                                product.Description = Console.ReadLine();
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                try
-                                                {
-                                                    Console.WriteLine("Enter new quantity");
-                                                    product.Quantity = int.Parse(Console.ReadLine());
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    Console.WriteLine($"Error occurred: {ex.Message}");
-                                                    return;
-                                                }
-
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                try
-                                                {
-                                                    Console.WriteLine("Enter new price");
-                                                    product.Price = decimal.Parse(Console.ReadLine());
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    Console.WriteLine($"Error occurred: {ex.Message}");
-                                                    return;
-                                                }
-
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                goto endLoop;
-                                            }
-                                    }
-                                }
-
-                                endLoop:
-                                if (product.Name == "exit" || product.Description == "exit")
-                                {
-                                    break;
-                                }
-
-                                context.Entry(product).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-
+                                UpdateProduct();
                                 break;
                             }
                         case 4:
                             {
-
-                                Console.WriteLine("Enter name of the product which you would like to remove");
-
-                                string productName = Console.ReadLine();
-                                var product = context.Products.FirstOrDefault(p => p.Name == productName);
-                                if (product is null)
-                                {
-                                    Console.WriteLine("Current product doesn't exist");
-                                    return;
-                                }
-
-                                context.Products.Remove(product);
+                                RemoveProduct();
                                 break;
                             }
                         default:
@@ -177,6 +50,152 @@ namespace Shop
                     }
 
                     context.SaveChanges();
+                }
+            }
+        }
+
+        static void DisplayProducts()
+        {
+            Console.WriteLine("Id|Name|Description|Quantity|Price");
+            foreach (var product in context.Products)
+            {
+                Console.WriteLine($"{product.Id}|{product.Name}|{product.Description}|{product.Quantity}|{product.Price}");
+            }
+        }
+
+        static void AddProduct()
+        {
+            Console.WriteLine("Enter name of the product:");
+            string productName = Console.ReadLine();
+
+            int quantity = 0;
+            decimal price = 0.0m;
+            try
+            {
+                Console.WriteLine("Enter quantity of the product:");
+                quantity = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+            }
+
+            try
+            {
+                Console.WriteLine("Enter price of the product:");
+                price = decimal.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+            }
+
+            Console.WriteLine("Enter description of the product:");
+            string description = Console.ReadLine();
+
+            var product = new Product()
+            {
+                Name = productName,
+                Quantity = quantity,
+                Price = price,
+                Description = description
+            };
+
+            context.Products.Add(product);
+        }
+
+        static void UpdateProduct()
+        {
+            Console.WriteLine("Enter id of the product which you would like to update");
+
+            int productId = int.Parse(Console.ReadLine());
+            var product = context.Products.Find(productId);
+            if (product is null)
+            {
+                Console.WriteLine("Current product doesn't exist");
+                return;
+            }
+
+            ChangeProductProperty(product);
+
+            context.Entry(product).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+        }
+
+        static void RemoveProduct()
+        {
+            Console.WriteLine("Enter id of the product which you would like to remove");
+
+            int productId = int.Parse(Console.ReadLine());
+            var product = context.Products.Find(productId);
+            if (product is null)
+            {
+                Console.WriteLine("Current product doesn't exist");
+                return;
+            }
+
+            context.Products.Remove(product);
+        }
+
+        static void ChangeProductProperty(Product product)
+        {
+            int property = 0;
+            while (true)
+            {
+                Console.WriteLine("1.Name");
+                Console.WriteLine("2.Description");
+                Console.WriteLine("3.Quantity");
+                Console.WriteLine("4.Price");
+                Console.WriteLine("5.Exit");
+
+                property = int.Parse(Console.ReadLine());
+                switch (property)
+                {
+                    case 1:
+                        {
+                            Console.WriteLine("Enter new name");
+                            product.Name = Console.ReadLine();
+                            break;
+                        }
+                    case 2:
+                        {
+                            Console.WriteLine("Enter new description");
+                            product.Description = Console.ReadLine();
+                            break;
+                        }
+                    case 3:
+                        {
+                            try
+                            {
+                                Console.WriteLine("Enter new quantity");
+                                product.Quantity = int.Parse(Console.ReadLine());
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error occurred: {ex.Message}");
+                                return;
+                            }
+
+                            break;
+                        }
+                    case 4:
+                        {
+                            try
+                            {
+                                Console.WriteLine("Enter new price");
+                                product.Price = decimal.Parse(Console.ReadLine());
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error occurred: {ex.Message}");
+                                return;
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            return;
+                        }
                 }
             }
         }
