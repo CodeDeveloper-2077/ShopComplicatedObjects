@@ -1,5 +1,6 @@
 ﻿using Shop.Data;
 using Shop.Models;
+using System;
 
 namespace Shop
 {
@@ -118,6 +119,12 @@ namespace Shop
             Console.WriteLine("Product has been removed");
         }
 
+        static void SetProperty<T>(Action<Product, Func<T>> action, Product pr, Func<T> func, string fieldName)
+        {
+            Console.WriteLine($"Enter new {fieldName}");
+            action(pr, func);
+        }
+
         static void ChangeProductProperty(Product product)
         {
             int property = 0;
@@ -132,22 +139,26 @@ namespace Shop
                     {
                         case 1:
                             {
-                                SetProductName(product);
+                                //SetProductName(product);
+                                SetProperty((p, f) => p.Name = f(), product, ()=> Console.ReadLine(), "Name");
                                 break;
                             }
                         case 2:
                             {
-                                SetDescription(product);
+                                //SetDescription(product);
+                                SetProperty((p, f) => p.Description = f(), product, () => Console.ReadLine(), "Description");
                                 break;
                             }
                         case 3:
                             {
-                                SetQuantity(product);
+                                //SetQuantity(product);
+                                SetProperty((p, f) => p.Quantity = f(), product, () => int.Parse(Console.ReadLine()), "Quantity");
                                 break;
                             }
                         case 4:
                             {
-                                SetPrice(product);
+                                //SetPrice(product);
+                                SetProperty((p, f) => p.Price = f(), product, () => decimal.Parse(Console.ReadLine()), "Quantity");
                                 break;
                             }
                         default:
