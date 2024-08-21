@@ -9,7 +9,7 @@ namespace Shop.Models
 
         public DateTime OrderDate { get; set; }
 
-        public int OrderNumber { get; set; }
+        public string OrderNumber { get; set; }
 
         public virtual IList<OrderDetails> OrderDetails { get; set; }
 

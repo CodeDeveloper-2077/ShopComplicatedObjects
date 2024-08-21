@@ -47,6 +47,11 @@ namespace Shop.Services
                             CancelOrder();
                             break;
                         }
+                    case 6:
+                        {
+                            Console.Clear();
+                            break;
+                        }
                     default:
                         {
                             return;
@@ -62,7 +67,8 @@ namespace Shop.Services
             Console.WriteLine("3.Create new order");
             Console.WriteLine("4.Update order");
             Console.WriteLine("5.Cancel order");
-            Console.WriteLine("6.Exit");
+            Console.WriteLine("6.Clear screen");
+            Console.WriteLine("7.Exit");
         }
 
         private void DisplayOrders()
@@ -77,7 +83,7 @@ namespace Shop.Services
         private void DisplayOrderDetails()
         {
             Console.WriteLine("Enter OrderNumber");
-            int orderNumber = int.Parse(Console.ReadLine());
+            string orderNumber = Console.ReadLine();
 
             var order = _context.Orders.FirstOrDefault(o => o.OrderNumber == orderNumber);
             if (order is null)
@@ -99,13 +105,13 @@ namespace Shop.Services
             try
             {
                 var order = new Order();
-                SetProperty((o, func) => o.OrderDate = func(), order, () => DateTime.Parse(Console.ReadLine()), "OrderDate");
-                SetProperty((o, func) => o.OrderNumber = func(), order, () => int.Parse(Console.ReadLine()), "OrderNumber");
+                SetProperty((o, func) => o.OrderDate = func(), order, () => { Console.WriteLine("Set Date in format yyyy-mm-dd"); return DateTime.Parse(Console.ReadLine()); }, "OrderDate");
+                SetProperty((o, func) => o.OrderNumber = func(), order, () => Console.ReadLine(), "OrderNumber");
 
-                Console.WriteLine("0.Exit");
                 int action = 1;
                 while (true)
                 {
+                    Console.WriteLine("0.Exit");
                     action = int.Parse(Console.ReadLine());
                     if (action == 0)
                     {
@@ -129,7 +135,7 @@ namespace Shop.Services
             try
             {
                 Console.WriteLine("Enter number of order which you would like to update");
-                int orderNumber = int.Parse(Console.ReadLine());
+                string orderNumber = Console.ReadLine();
 
                 var order = _context.Orders.FirstOrDefault(o => o.OrderNumber == orderNumber);
                 if (order is null)
@@ -149,7 +155,7 @@ namespace Shop.Services
         private void CancelOrder()
         {
             Console.WriteLine("Enter number of the order you would like to remove");
-            int orderNumber = int.Parse(Console.ReadLine());
+            string orderNumber = Console.ReadLine();
 
             var order = _context.Orders.FirstOrDefault(o => o.OrderNumber == orderNumber);
             if (order is null)

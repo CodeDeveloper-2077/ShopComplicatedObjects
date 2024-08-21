@@ -12,7 +12,7 @@ using Shop.Data;
 namespace Shop.Migrations
 {
     [DbContext(typeof(ShopDb))]
-    [Migration("20240820000352_InitialMigration")]
+    [Migration("20240821124126_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -36,8 +36,9 @@ namespace Shop.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("OrderNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
