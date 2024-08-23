@@ -111,14 +111,14 @@ namespace Shop.Services
                 int action = 1;
                 while (true)
                 {
-                    Console.WriteLine("0.Exit");
-                    action = int.Parse(Console.ReadLine());
                     if (action == 0)
                     {
                         break;
                     }
 
                     AddPosition(order);
+                    Console.WriteLine("0.Exit");
+                    action = int.Parse(Console.ReadLine());
                 }
 
                 _context.Orders.Add(order);
@@ -175,8 +175,8 @@ namespace Shop.Services
                 var orderDetail = new OrderDetails();
                 SetProperty((od, func) => od.ProductName = func(), orderDetail, () => Console.ReadLine(), "ProductName");
                 SetProperty((od, func) => od.Price = func(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Price");
-                SetProperty((od, func) => od.Quantity = func(), orderDetail, () => int.Parse(Console.ReadLine()), "Quantity");
-                SetProperty((od, func) => od.PositionId = func(), orderDetail, () => int.Parse(Console.ReadLine()), "PositionId");
+                SetProperty((od, func) => od.Quantity = func(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Quantity");
+                orderDetail.PositionId++;
 
                 order.OrderDetails.Add(orderDetail);
             }
