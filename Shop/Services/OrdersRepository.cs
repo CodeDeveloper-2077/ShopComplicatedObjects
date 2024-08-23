@@ -118,6 +118,7 @@ namespace Shop.Services
 
                     AddPosition(order);
                     Console.WriteLine("0.Exit");
+                    Console.WriteLine("1.Add New Line");
                     action = int.Parse(Console.ReadLine());
                 }
 
