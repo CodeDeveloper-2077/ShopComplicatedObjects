@@ -101,7 +101,6 @@ namespace Shop.Services
 
             ChangeProductProperty(product);
 
-            _context.Entry(product).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             _context.SaveChanges();
             Console.WriteLine("Product has been updated");
         }

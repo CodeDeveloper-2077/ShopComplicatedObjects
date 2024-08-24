@@ -146,7 +146,6 @@ namespace Shop.Services
                 }
 
                 ChangeOrder(order);
-                _context.Entry(order).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 _context.SaveChanges();
             }
             catch (Exception ex)
@@ -157,26 +156,55 @@ namespace Shop.Services
 
         private void ChangeOrder(Order order)
         {
-            Console.WriteLine("Enter id of position in the order, you would like to change");
-            int positionId = int.Parse(Console.ReadLine());
+            ShowOrder(order);
 
-            var position = order.OrderDetails.FirstOrDefault(o => o.PositionId == positionId);
-            if (position is null)
+            Console.WriteLine("If you want to change the order, write '0'.\nIf you want to change position, write '1'");
+            int state = int.Parse(Console.ReadLine());
+            if (state == 0)
             {
-                Console.WriteLine("Current position doesn't exist");
-                return;
+                UpdateOrderProperties(order);
             }
+            else
+            {
+                Console.WriteLine("Enter id of position in the order, you would like to change");
+                int positionId = int.Parse(Console.ReadLine());
 
-            ShowCommands();
-            UpdateProperties(order, position);
+                var position = order.OrderDetails.FirstOrDefault(o => o.PositionId == positionId);
+                if (position is null)
+                {
+                    Console.WriteLine("Current position doesn't exist");
+                    return;
+                }
+
+                UpdateOrderDetailProperties(position);
+            }
         }
 
-        private void UpdateProperties(Order order, OrderDetails orderDetail)
+        private void ShowOrder(Order order)
+        {
+            Console.WriteLine($"\nOrderDate: {order.OrderDate}\nOrderNumber: {order.OrderNumber}\n");
+
+            IEnumerable<OrderDetails> orderDetails = _context.OrderDetails.Where(od => od.OrderId == order.Id);
+            ShowOrderDetails(orderDetails);
+        }
+
+        private void ShowOrderDetails(IEnumerable<OrderDetails> orderDetails)
+        {
+            Console.WriteLine("PositionId|ProductName|Price|Quantity");
+            foreach (var orderDetail in orderDetails)
+            {
+                Console.WriteLine($"{orderDetail.PositionId}|{orderDetail.ProductName}|{orderDetail.Price}|{orderDetail.Quantity}");
+            }
+
+            Console.WriteLine();
+        }
+
+        private void UpdateOrderProperties(Order order)
         {
             int property = 0;
             while (true)
             {
-                ShowCommands();
+                ShowCommands(0);
 
                 property = int.Parse(Console.ReadLine());
                 try
@@ -185,7 +213,7 @@ namespace Shop.Services
                     {
                         case 1:
                             {
-                                SetProperty((o, f) => o.OrderDate = f(), order, () => DateTime.Parse(Console.ReadLine()), "OrderDate");
+                                SetProperty((o, f) => o.OrderDate = f(), order, () => { Console.WriteLine("Set Date in format yyyy-mm-dd"); return DateTime.Parse(Console.ReadLine()); }, "OrderDate");
                                 break;
                             }
                         case 2:
@@ -193,6 +221,31 @@ namespace Shop.Services
                                 SetProperty((o, f) => o.OrderNumber = f(), order, () => Console.ReadLine(), "OrderNumber");
                                 break;
                             }
+                        default:
+                            {
+                                return;
+                            }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error occurred: {ex.Message}");
+                }
+            }
+        }
+
+        private void UpdateOrderDetailProperties(OrderDetails orderDetail)
+        {
+            int property = 0;
+            while (true)
+            {
+                ShowCommands(1);
+
+                property = int.Parse(Console.ReadLine());
+                try
+                {
+                    switch (property)
+                    {
                         case 3:
                             {
                                 SetProperty((od, f) => od.ProductName = f(), orderDetail, () => Console.ReadLine(), "ProductName");
@@ -227,15 +280,21 @@ namespace Shop.Services
             }
         }
 
-        private void ShowCommands()
+        private void ShowCommands(int state)
         {
-            Console.WriteLine("1.OrderDate");
-            Console.WriteLine("2.OrderNumber");
-            Console.WriteLine("3.ProductName");
-            Console.WriteLine("4.Price");
-            Console.WriteLine("5.Quantity");
-            Console.WriteLine("6.PositionId");
-            Console.WriteLine("8.Exit");
+            if (state == 0)
+            {
+                Console.WriteLine("1.OrderDate");
+                Console.WriteLine("2.OrderNumber");
+            }
+            else
+            {
+                Console.WriteLine("3.ProductName");
+                Console.WriteLine("4.Price");
+                Console.WriteLine("5.Quantity");
+                Console.WriteLine("6.PositionId");
+                Console.WriteLine("7.Exit");
+            }
         }
 
         private void CancelOrder()
