@@ -61,10 +61,10 @@ namespace Shop.Services
 
         private void DisplayProducts()
         {
-            Console.WriteLine("Id|Name|Description|Quantity|Price");
+            Console.WriteLine("Id|Name|Description");
             foreach (var product in _context.Products)
             {
-                Console.WriteLine($"{product.Id}|{product.Name}|{product.Description}|{product.Quantity}|{product.Price}");
+                Console.WriteLine($"{product.Id}|{product.Name}|{product.Description}");
             }
         }
 
@@ -74,8 +74,6 @@ namespace Shop.Services
             {
                 var product = new Product();
                 SetProductName(product);
-                SetQuantity(product);
-                SetPrice(product);
                 SetDescription(product);
                 _context.Products.Add(product);
                 Console.WriteLine("Product has been created");
@@ -152,18 +150,6 @@ namespace Shop.Services
                                 SetProperty((p, f) => p.Description = f(), product, () => Console.ReadLine(), "Description");
                                 break;
                             }
-                        case 3:
-                            {
-                                //SetQuantity(product);
-                                SetProperty((p, f) => p.Quantity = f(), product, () => int.Parse(Console.ReadLine()), "Quantity");
-                                break;
-                            }
-                        case 4:
-                            {
-                                //SetPrice(product);
-                                SetProperty((p, f) => p.Price = f(), product, () => decimal.Parse(Console.ReadLine()), "Quantity");
-                                break;
-                            }
                         default:
                             {
                                 return;
@@ -175,18 +161,6 @@ namespace Shop.Services
                     Console.WriteLine($"Error occurred: {ex.Message}");
                 }
             }
-        }
-
-        private void SetPrice(Product product)
-        {
-            Console.WriteLine("Enter new price");
-            product.Price = decimal.Parse(Console.ReadLine());
-        }
-
-        private void SetQuantity(Product product)
-        {
-            Console.WriteLine("Enter new quantity");
-            product.Quantity = int.Parse(Console.ReadLine());
         }
 
         private void SetDescription(Product product)
@@ -205,9 +179,7 @@ namespace Shop.Services
         {
             Console.WriteLine("1.Name");
             Console.WriteLine("2.Description");
-            Console.WriteLine("3.Quantity");
-            Console.WriteLine("4.Price");
-            Console.WriteLine("5.Exit");
+            Console.WriteLine("3.Exit");
         }
     }
 }

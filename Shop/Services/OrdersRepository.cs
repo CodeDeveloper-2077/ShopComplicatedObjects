@@ -1,4 +1,5 @@
-﻿using Shop.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Shop.Data;
 using Shop.Models;
 
 namespace Shop.Services
@@ -92,11 +93,11 @@ namespace Shop.Services
                 return;
             }
 
-            Console.WriteLine("Id|ProductName|Price|Quantity|PositionId|OrderNumber");
-            IEnumerable<OrderDetails> orderDetails = _context.OrderDetails.Where(od => od.OrderId == order.Id);
+            Console.WriteLine("Id|ProductId|ProductName|ProductDescription|Price|Quantity|PositionId|OrderNumber");
+            IEnumerable<OrderDetails> orderDetails = _context.OrderDetails.Include(od => od.Product).Where(od => od.OrderId == order.Id);
             foreach (var orderDetail in orderDetails)
             {
-                Console.WriteLine($"{orderDetail.Id}|{orderDetail.ProductName}|{orderDetail.Price}|{orderDetail.Quantity}|{orderDetail.PositionId}|{order.OrderNumber}");
+                Console.WriteLine($"{orderDetail.Id}|{orderDetail.Product.Id}|{orderDetail.Product.Name}|{orderDetail.Product.Description}|{orderDetail.Price}|{orderDetail.Quantity}|{orderDetail.PositionId}|{order.OrderNumber}");
             }
         }
 
@@ -184,16 +185,16 @@ namespace Shop.Services
         {
             Console.WriteLine($"\nOrderDate: {order.OrderDate}\nOrderNumber: {order.OrderNumber}\n");
 
-            IEnumerable<OrderDetails> orderDetails = _context.OrderDetails.Where(od => od.OrderId == order.Id);
+            IEnumerable<OrderDetails> orderDetails = _context.OrderDetails.Include(od => od.Product).Where(od => od.OrderId == order.Id);
             ShowOrderDetails(orderDetails);
         }
 
         private void ShowOrderDetails(IEnumerable<OrderDetails> orderDetails)
         {
-            Console.WriteLine("PositionId|ProductName|Price|Quantity");
+            Console.WriteLine("PositionId|ProductId|ProductName|Description|Price|Quantity");
             foreach (var orderDetail in orderDetails)
             {
-                Console.WriteLine($"{orderDetail.PositionId}|{orderDetail.ProductName}|{orderDetail.Price}|{orderDetail.Quantity}");
+                Console.WriteLine($"{orderDetail.PositionId}|{orderDetail.Product.Id}|{orderDetail.Product.Name}|{orderDetail.Product.Description}|{orderDetail.Price}|{orderDetail.Quantity}");
             }
 
             Console.WriteLine();
@@ -206,9 +207,9 @@ namespace Shop.Services
             {
                 ShowCommands(0);
 
-                property = int.Parse(Console.ReadLine());
                 try
                 {
+                    property = int.Parse(Console.ReadLine());
                     switch (property)
                     {
                         case 1:
@@ -241,28 +242,33 @@ namespace Shop.Services
             {
                 ShowCommands(1);
 
-                property = int.Parse(Console.ReadLine());
                 try
                 {
+                    property = int.Parse(Console.ReadLine());
                     switch (property)
                     {
                         case 3:
                             {
-                                SetProperty((od, f) => od.ProductName = f(), orderDetail, () => Console.ReadLine(), "ProductName");
+                                SetProperty((od, f) => od.Product.Name = f(), orderDetail, () => Console.ReadLine(), "ProductName");
                                 break;
                             }
                         case 4:
                             {
-                                SetProperty((od, f) => od.Price = f(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Price");
+                                SetProperty((od, f) => od.Product.Description = f(), orderDetail, () => Console.ReadLine(), "Description");
                                 break;
                             }
                         case 5:
+                            {
+                                SetProperty((od, f) => od.Price = f(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Price");
+                                break;
+                            }
+                        case 6:
                             {
                                 SetProperty((od, f) => od.Quantity = f(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Quantity");
                                 break;
                             }
 
-                        case 6:
+                        case 7:
                             {
                                 SetProperty((od, f) => od.PositionId = f(), orderDetail, () => int.Parse(Console.ReadLine()), "PositionId");
                                 break;
@@ -286,14 +292,16 @@ namespace Shop.Services
             {
                 Console.WriteLine("1.OrderDate");
                 Console.WriteLine("2.OrderNumber");
+                Console.WriteLine("8.Exit");
             }
             else
             {
                 Console.WriteLine("3.ProductName");
-                Console.WriteLine("4.Price");
-                Console.WriteLine("5.Quantity");
-                Console.WriteLine("6.PositionId");
-                Console.WriteLine("7.Exit");
+                Console.WriteLine("4.Description");
+                Console.WriteLine("5.Price");
+                Console.WriteLine("6.Quantity");
+                Console.WriteLine("7.PositionId");
+                Console.WriteLine("8.Exit");
             }
         }
 
@@ -318,7 +326,12 @@ namespace Shop.Services
             try
             {
                 var orderDetail = new OrderDetails();
-                SetProperty((od, func) => od.ProductName = func(), orderDetail, () => Console.ReadLine(), "ProductName");
+
+                var product = new Product();
+                SetProperty((p, func) => p.Name = func(), product, () => Console.ReadLine(), "ProductName");
+                SetProperty((p, func) => p.Description = func(), product, () => Console.ReadLine(), "Description");
+                orderDetail.Product = product;
+
                 SetProperty((od, func) => od.Price = func(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Price");
                 SetProperty((od, func) => od.Quantity = func(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Quantity");
                 if (order.OrderDetails.Any())
