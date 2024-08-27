@@ -12,7 +12,7 @@ namespace Shop.Services
             _context = context;
         }
 
-        public void Main()
+        public void ExecuteProductOperations()
         {
             int action = 0;
             while (true)
@@ -52,11 +52,11 @@ namespace Shop.Services
 
         private void ShowOperation()
         {
+            Console.WriteLine("0.Exit");
             Console.WriteLine("1.See all products");
             Console.WriteLine("2.Create new product");
             Console.WriteLine("3.Update product");
             Console.WriteLine("4.Remove product");
-            Console.WriteLine("5.Exit");
         }
 
         private void DisplayProducts()
@@ -73,8 +73,8 @@ namespace Shop.Services
             try
             {
                 var product = new Product();
-                SetProductName(product);
-                SetDescription(product);
+                SetProperty((p, f) => p.Name = f(), product, () => Console.ReadLine(), "Name");
+                SetProperty((p, f) => p.Description = f(), product, () => Console.ReadLine(), "Description");
                 _context.Products.Add(product);
                 Console.WriteLine("Product has been created");
                 _context.SaveChanges();
@@ -140,13 +140,11 @@ namespace Shop.Services
                     {
                         case 1:
                             {
-                                //SetProductName(product);
                                 SetProperty((p, f) => p.Name = f(), product, () => Console.ReadLine(), "Name");
                                 break;
                             }
                         case 2:
                             {
-                                //SetDescription(product);
                                 SetProperty((p, f) => p.Description = f(), product, () => Console.ReadLine(), "Description");
                                 break;
                             }
@@ -163,23 +161,11 @@ namespace Shop.Services
             }
         }
 
-        private void SetDescription(Product product)
-        {
-            Console.WriteLine("Enter new description");
-            product.Description = Console.ReadLine();
-        }
-
-        private void SetProductName(Product product)
-        {
-            Console.WriteLine("Enter new name");
-            product.Name = Console.ReadLine();
-        }
-
         private void ShowCommands()
         {
+            Console.WriteLine("0.Exit");
             Console.WriteLine("1.Name");
             Console.WriteLine("2.Description");
-            Console.WriteLine("3.Exit");
         }
     }
 }

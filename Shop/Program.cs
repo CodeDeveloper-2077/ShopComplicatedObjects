@@ -13,7 +13,8 @@ namespace Shop
 
         static void Main(string[] args)
         {
-            _ordersRepository.Main();
+            _productRepository.ExecuteProductOperations();
+            _ordersRepository.ExecuteOrderOperations();
         }
     }
 }

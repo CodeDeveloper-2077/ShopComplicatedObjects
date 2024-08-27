@@ -13,7 +13,7 @@ namespace Shop.Services
             _context = context;
         }
 
-        public void Main()
+        public void ExecuteOrderOperations()
         {
             int action = 0;
             while (true)
@@ -63,13 +63,13 @@ namespace Shop.Services
 
         private void ShowOperation()
         {
+            Console.WriteLine("0.Exit");
             Console.WriteLine("1.See all orders");
             Console.WriteLine("2.See order details");
             Console.WriteLine("3.Create new order");
             Console.WriteLine("4.Update order");
             Console.WriteLine("5.Cancel order");
             Console.WriteLine("6.Clear screen");
-            Console.WriteLine("7.Exit");
         }
 
         private void DisplayOrders()
@@ -288,11 +288,11 @@ namespace Shop.Services
 
         private void ShowCommands(int state)
         {
+            Console.WriteLine("0.Exit");
             if (state == 0)
             {
                 Console.WriteLine("1.OrderDate");
                 Console.WriteLine("2.OrderNumber");
-                Console.WriteLine("8.Exit");
             }
             else
             {
@@ -301,7 +301,6 @@ namespace Shop.Services
                 Console.WriteLine("5.Price");
                 Console.WriteLine("6.Quantity");
                 Console.WriteLine("7.PositionId");
-                Console.WriteLine("8.Exit");
             }
         }
 
@@ -327,9 +326,10 @@ namespace Shop.Services
             {
                 var orderDetail = new OrderDetails();
 
-                var product = new Product();
-                SetProperty((p, func) => p.Name = func(), product, () => Console.ReadLine(), "ProductName");
-                SetProperty((p, func) => p.Description = func(), product, () => Console.ReadLine(), "Description");
+                Console.WriteLine("Enter id of the product, which you would like to purchase");
+                int productId = int.Parse(Console.ReadLine());
+                var product = _context.Products.Find(productId);
+
                 orderDetail.Product = product;
 
                 SetProperty((od, func) => od.Price = func(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Price");
