@@ -1,4 +1,5 @@
-﻿using Shop.Data;
+﻿using LoggerService;
+using Shop.Data;
 using Shop.Models;
 
 namespace Shop.Services
@@ -6,10 +7,12 @@ namespace Shop.Services
     public class ProductRepository
     {
         private readonly ShopDb _context;
+        private readonly ILoggerManager _logger;
 
-        public ProductRepository(ShopDb context)
+        public ProductRepository(ShopDb context, ILoggerManager logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public void ExecuteProductOperations()
@@ -59,7 +62,7 @@ namespace Shop.Services
             Console.WriteLine("4.Remove product");
         }
 
-        private void DisplayProducts()
+        public void DisplayProducts()
         {
             Console.WriteLine("Id|Name|Description");
             foreach (var product in _context.Products)
@@ -81,7 +84,8 @@ namespace Shop.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred: {ex.Message}");
+                Console.WriteLine("Exception occurred! Please, see log");
+                _logger.LogError($"Exception: {ex.Message}");
             }
         }
 
@@ -156,7 +160,8 @@ namespace Shop.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    Console.WriteLine("Exception occurred! Please, see log");
+                    _logger.LogError($"Exception: {ex.Message}");
                 }
             }
         }

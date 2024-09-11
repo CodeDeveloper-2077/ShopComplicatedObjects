@@ -1,22 +1,22 @@
-﻿using Shop.Data;
-using Shop.Models;
+﻿using LoggerService;
+using Shop.Data;
 using Shop.Services;
-using System;
 
 namespace Shop
 {
     internal class Program
     {
-        private static ShopDb context = new ShopDb();
-        private static ProductRepository _productRepository = new ProductRepository(context);
-        private static OrdersRepository _ordersRepository = new OrdersRepository(context);
+        private static ShopDb _context = new ShopDb();
+        private static ILoggerManager _logger = new LoggerManager();
+        private static ProductRepository _productRepository = new ProductRepository(_context, _logger);
+        private static OrdersRepository _ordersRepository = new OrdersRepository(_context, _logger, _productRepository);
 
         static void Main(string[] args)
         {
-            try
+            int action = 0;
+            while (true)
             {
-                int action = 0;
-                while (true)
+                try
                 {
                     ShowCommands();
                     action = int.Parse(Console.ReadLine());
@@ -38,13 +38,12 @@ namespace Shop
                             }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error occurred! See inner log");
+                    _logger.LogError($"Exception: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error occurred: {ex.Message}");
-            }
-            _productRepository.ExecuteProductOperations();
-            _ordersRepository.ExecuteOrderOperations();
         }
 
         private static void ShowCommands()

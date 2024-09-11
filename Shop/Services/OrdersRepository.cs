@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LoggerService;
+using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 using Shop.Models;
 
@@ -7,10 +8,14 @@ namespace Shop.Services
     public class OrdersRepository
     {
         private readonly ShopDb _context;
+        private readonly ILoggerManager _logger;
+        private readonly ProductRepository _productRepository;
 
-        public OrdersRepository(ShopDb context)
+        public OrdersRepository(ShopDb context, ILoggerManager logger, ProductRepository productRepository)
         {
             _context = context;
+            _logger = logger;
+            _productRepository = productRepository;
         }
 
         public void ExecuteOrderOperations()
@@ -117,6 +122,10 @@ namespace Shop.Services
                         break;
                     }
 
+                    Console.WriteLine("List of products");
+                    _productRepository.DisplayProducts();
+
+
                     AddPosition(order);
                     Console.WriteLine("0.Exit");
                     Console.WriteLine("1.Add New Line");
@@ -126,9 +135,10 @@ namespace Shop.Services
                 _context.Orders.Add(order);
                 _context.SaveChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Exception occurred: {ex.Message}");
+                Console.WriteLine("Exception occurred! Please, see log");
+                _logger.LogError($"Exception: {ex.Message}");
             }
         }
 
@@ -151,7 +161,8 @@ namespace Shop.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred: {ex.Message}");
+                Console.WriteLine("Exception occurred! Please, see log");
+                _logger.LogError($"Exception: {ex.Message}");
             }
         }
 
@@ -230,7 +241,8 @@ namespace Shop.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    Console.WriteLine("Exception occurred! Please, see log");
+                    _logger.LogError($"Exception: {ex.Message}");
                 }
             }
         }
@@ -249,26 +261,16 @@ namespace Shop.Services
                     {
                         case 3:
                             {
-                                SetProperty((od, f) => od.Product.Name = f(), orderDetail, () => Console.ReadLine(), "ProductName");
-                                break;
-                            }
-                        case 4:
-                            {
-                                SetProperty((od, f) => od.Product.Description = f(), orderDetail, () => Console.ReadLine(), "Description");
-                                break;
-                            }
-                        case 5:
-                            {
                                 SetProperty((od, f) => od.Price = f(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Price");
                                 break;
                             }
-                        case 6:
+                        case 4:
                             {
                                 SetProperty((od, f) => od.Quantity = f(), orderDetail, () => decimal.Parse(Console.ReadLine()), "Quantity");
                                 break;
                             }
 
-                        case 7:
+                        case 5:
                             {
                                 SetProperty((od, f) => od.PositionId = f(), orderDetail, () => int.Parse(Console.ReadLine()), "PositionId");
                                 break;
@@ -281,12 +283,13 @@ namespace Shop.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    Console.WriteLine("Exception occurred! Please, see log");
+                    _logger.LogError($"Exception: {ex.Message}");
                 }
             }
         }
 
-        private void ShowCommands(int state)
+        private void ShowCommands(int state)    
         {
             Console.WriteLine("0.Exit");
             if (state == 0)
@@ -296,11 +299,9 @@ namespace Shop.Services
             }
             else
             {
-                Console.WriteLine("3.ProductName");
-                Console.WriteLine("4.Description");
-                Console.WriteLine("5.Price");
-                Console.WriteLine("6.Quantity");
-                Console.WriteLine("7.PositionId");
+                Console.WriteLine("3.Price");
+                Console.WriteLine("4.Quantity");
+                Console.WriteLine("5.PositionId");
             }
         }
 
@@ -329,6 +330,11 @@ namespace Shop.Services
                 Console.WriteLine("Enter id of the product, which you would like to purchase");
                 int productId = int.Parse(Console.ReadLine());
                 var product = _context.Products.Find(productId);
+                if (product is null)
+                {
+                    Console.WriteLine("Current Product doesn't exist.");
+                    return;
+                }
 
                 orderDetail.Product = product;
 
@@ -348,7 +354,8 @@ namespace Shop.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred: {ex.Message}");
+                Console.WriteLine("Exception occurred! Please, see log");
+                _logger.LogError($"Exception: {ex.Message}");
             }
         }
 
